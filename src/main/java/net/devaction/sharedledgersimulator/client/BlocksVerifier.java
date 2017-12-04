@@ -1,12 +1,10 @@
 package net.devaction.sharedledgersimulator.client;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import net.devaction.sharedledgersimulator.block.Block;
-import net.devaction.sharedledgersimulator.block.ByteHashcodeProvider;
-import net.devaction.sharedledgersimulator.transaction.Transaction;
 import net.devaction.sharedledgersimulator.transaction.TransactionsInBlock;
 
 /**
@@ -14,11 +12,12 @@ import net.devaction.sharedledgersimulator.transaction.TransactionsInBlock;
  */
 public class BlocksVerifier{
     
-    public static boolean verify(Block block, BlocksProvider blockProvider){
+    public static ChainVerificationResult verify(Block block, BlocksProvider blockProvider){
         List<TransactionsInBlock> transactionList = new ArrayList<TransactionsInBlock>();
         while(block != null){
             if (!verifyHashcode(block))
-                return false;
+                //verification failed
+                return null;
             
             transactionList.add(
                     new TransactionsInBlock(block.getTransactions(), block.getMinerAddress()));
@@ -29,7 +28,11 @@ public class BlocksVerifier{
                 block = blockProvider.getBlock(block.getPreviousBlockHashcode());
         }
         
-        return TransactionsVerifier.verify(transactionList);
+        Map<List<Byte>, Long> balances = TransactionsVerifier.verify(transactionList);
+        if (balances == null)
+            //verification failed
+            return null;
+        return new ChainVerificationResult(transactionList, balances);
     }
     
     static boolean verifyHashcode(Block block){

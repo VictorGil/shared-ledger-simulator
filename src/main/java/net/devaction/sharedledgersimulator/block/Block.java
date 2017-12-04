@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import net.devaction.sharedledgersimulator.transaction.AddressAndAmount;
 import net.devaction.sharedledgersimulator.transaction.Transaction;
 import net.devaction.sharedledgersimulator.transaction.UnsignedTransaction;
@@ -23,7 +26,10 @@ import net.devaction.util.format.DateUtil;
  * this class is mutable because of the "setNounce" method
  */
 public class Block implements Serializable, Comparable<Block>{
-    private static final long REWARD = Long.parseLong(PropertiesProvider.get("reward.per.block"));
+    
+    private static transient final Log log = LogFactory.getLog(Block.class);
+    
+    private static transient final long REWARD = Long.parseLong(PropertiesProvider.get("reward.per.block"));
     
     private static final long serialVersionUID = -3608477095371744350L;
     
@@ -34,14 +40,28 @@ public class Block implements Serializable, Comparable<Block>{
     private byte[] previousBlockByteHashcode; 
     private byte[] minerAddress;
     private long nounce;
-    
+
     public Block(Collection<Transaction> transactionsCollection, byte[] previousBlockByteHashcode, 
-            byte[] minerAddress, long fee){
+            byte[] minerAddress){
         if (transactionsCollection == null){
-            transactionsCollection = new ArrayList<Transaction>();
+            String errMessage = "The transactions collection cannot be null";
+            log.error(errMessage);
+            throw new IllegalArgumentException(errMessage);            
+        }
+        transactions = Collections.unmodifiableSet(new HashSet<Transaction>(transactionsCollection));
+        this.previousBlockByteHashcode = previousBlockByteHashcode;
+        this.minerAddress = minerAddress;
+        this.timestamp = new Date().getTime();        
+        nounce = ThreadLocalRandom.current().nextLong();
+    }
+    
+    public Block(Collection<Transaction> transactionsCollectionWithoutFeeNorReward, byte[] previousBlockByteHashcode, 
+            byte[] minerAddress, long fee){
+        if (transactionsCollectionWithoutFeeNorReward == null){
+            transactionsCollectionWithoutFeeNorReward = new ArrayList<Transaction>();
         }
         transactions = Collections.unmodifiableSet(
-                addFeeAndRewardTransaction(transactionsCollection, minerAddress, fee));
+                addFeeAndRewardTransaction(transactionsCollectionWithoutFeeNorReward, minerAddress, fee));
         this.previousBlockByteHashcode = previousBlockByteHashcode;
         this.minerAddress = minerAddress;
         this.timestamp = new Date().getTime();        
@@ -83,6 +103,7 @@ public class Block implements Serializable, Comparable<Block>{
         if (previousBlockByteHashcode != null)
             result = prime * result + Arrays.hashCode(previousBlockByteHashcode);
         result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
+        //actually, transactions cannot be null
         result = prime * result + ((transactions == null) ? 0 : transactions.hashCode());
         return result;
     }
@@ -137,7 +158,11 @@ public class Block implements Serializable, Comparable<Block>{
     public long getTimestamp(){
         return timestamp;
     }
-
+    
+    public String getTimestampString(){
+        return DateUtil.getDateString(timestamp);
+    }
+    
     public Collection<Transaction> getTransactions(){
         return transactions;
     }

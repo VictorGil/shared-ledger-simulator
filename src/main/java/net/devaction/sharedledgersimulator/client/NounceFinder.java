@@ -17,13 +17,22 @@ public class NounceFinder{
     private static final int ZEROS = Integer.parseInt(PropertiesProvider.get("leading.zeros"));
     
     public static Block find(Block block){
-        long numberOfAttempts = 0;
+        long numberOfAttempts = 1;
+        long nounce = block.getNounce();
         while(!enoughNumberOfLeadingZeros(block)){
-            long nounce = block.getNounce();
+            nounce = block.getNounce();
             block.setNounce(++nounce);
+            log.debug("Nounce " + nounce + " did not work");
             numberOfAttempts++;
+            try{
+                Thread.sleep(100);
+            } catch (InterruptedException ex){
+                log.error(ex);
+                throw new RuntimeException(ex);
+            }
         }
-        log.debug(ZEROS + " leading zeros were achieved after " + numberOfAttempts + " attempts");
+        log.debug(ZEROS + " leading zeros were achieved after " + numberOfAttempts + " attempts."
+                + " Successful nounce: " + nounce);
         return block;
     }
     

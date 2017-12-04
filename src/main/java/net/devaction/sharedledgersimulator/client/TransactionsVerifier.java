@@ -24,7 +24,7 @@ public class TransactionsVerifier{
     
     private static final long REWARD = Long.parseLong(PropertiesProvider.get("reward.per.block"));
 
-    public static boolean verify(List<TransactionsInBlock> transactionsInChain){
+    public static Map<List<Byte>, Long> verify(List<TransactionsInBlock> transactionsInChain){
         Map<List<Byte>, Long> balances = new HashMap<List<Byte>, Long>();
         
         //for (int i = transactionsInChain.size() - 1; i >= 0; i++){
@@ -44,14 +44,15 @@ public class TransactionsVerifier{
                         balances.put(minerAddressKey, REWARD + rewardAndFeeOutputs.getFee());
                         continue;
                    } else{
-                       return false;  
+                       //verification failed
+                       return null;  
                    }                   
                 }
                 
                 if (!verifySignature(signedTransaction)){
                     log.warn("The signature stamped on the transaction could not be verified.\n" + 
                             signedTransaction);
-                    return false;
+                    return null;
                 } else{
                     log.debug("Transaction stamped signature has been verified: " + signedTransaction);
                 }
@@ -75,7 +76,7 @@ public class TransactionsVerifier{
                 if (balance < totalAmount){
                     log.warn("The calculated fee does not much the fee in the transaction, "
                             + "balance: " + balance + ", total amount: " + totalAmount);
-                    return false;
+                    return null;
                 }
                 calculatedFee = calculatedFee + (balance - totalAmount);
                 balances.put(sourceAddressKey, 0L);
@@ -95,12 +96,12 @@ public class TransactionsVerifier{
                 log.warn("\nThe calculated fee does not match the fee in the transaction."
                         + "\ncalculated fee: " + calculatedFee + 
                         "\nrewardAndFeeOutputs.getFee(): " + rewardAndFeeOutputs.getFee()); 
-                return false;
+                return null;
             }
                 
         }
         log.debug("The list of the block transactions has been verified");
-        return true;
+        return balances;
     }
     
     public static boolean verifySignature(Transaction signedTransaction){

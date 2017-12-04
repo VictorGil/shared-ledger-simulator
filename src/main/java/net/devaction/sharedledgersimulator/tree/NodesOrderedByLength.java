@@ -16,10 +16,13 @@ public class NodesOrderedByLength<T extends Comparable<T>>{
         synchSortedSet.add(node);
     }
     
-    public IteratorWithoutRemove<Node<T>> iterator(){
+    public IteratorWithoutRemove<Node<T>> iterator(){        
         return new IteratorWithoutRemove<Node<T>>(synchSortedSet.iterator()); 
     }
     
+    public int size(){
+        return synchSortedSet.size();
+    }
     @Override
     public String toString(){
         return "NodesOrderedByLength[\n    " + 

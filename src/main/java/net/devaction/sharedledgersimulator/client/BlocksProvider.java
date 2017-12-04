@@ -23,4 +23,8 @@ public class BlocksProvider{
     public Block getBlock(byte[] byteHashcode){
         return blockTreeConstructor.getBlock(byteHashcode);
     }
+    
+    public int size(){
+        return blockTreeConstructor.size();
+    }
 }

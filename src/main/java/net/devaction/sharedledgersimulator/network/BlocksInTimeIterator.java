@@ -16,14 +16,14 @@ public class BlocksInTimeIterator implements Iterator<Block>{
     }
     
     @Override
-    public boolean hasNext() {
+    public boolean hasNext(){
         if (current <= blocksInTime.size() - 1)
             return true;
         return false;
     }
 
     @Override
-    public Block next() {
+    public Block next(){
         if (hasNext()){
             Block next = blocksInTime.get(current);
             current++;
@@ -31,5 +31,4 @@ public class BlocksInTimeIterator implements Iterator<Block>{
         }
         return null;
     }
-
 }

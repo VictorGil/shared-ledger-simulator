@@ -27,7 +27,7 @@ public class Inserter implements Runnable{
     }
     
     @Override
-    public void run() {
+    public void run(){
         for (int i = 0; i<numOfInsertions; i++){
             int currentValue = initialValue + i;
             timeLine.add(initialValue + i);

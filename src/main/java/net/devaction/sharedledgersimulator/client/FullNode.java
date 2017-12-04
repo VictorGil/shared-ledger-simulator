@@ -2,6 +2,7 @@ package net.devaction.sharedledgersimulator.client;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,37 +17,40 @@ import net.devaction.sharedledgersimulator.tree.NodesOrderedByLength;
 /**
  * @author Víctor Gil
  */
-public class FullNode{
+public class FullNode implements Runnable{
     private static final Log log = LogFactory.getLog(FullNode.class);
             
     private final BlocksProvider blocksProvider;    
     private final byte[] minerAddress; 
     private boolean wasStopRequested;
-    private BlocksInTime blocksInTime; 
+    private final BlocksInTime blocksInTime;
+    private final NewTxProvider newTxProvider;
     
     public FullNode(byte[] minerAddress){
         blocksProvider = new BlocksProvider();
         this.minerAddress = minerAddress;
-        blocksInTime = BlocksInTime.getInstance(); 
+        blocksInTime = BlocksInTime.getInstance();
+        newTxProvider = new NewTxProvider();
     }
     
-    public void start(){
+    public void run(){
+        log.info("Starting full node");
         while(!wasStopRequested){
             NodesOrderedByLength<Block> nodes = blocksProvider.provideOrderedbyLength();
+            log.info("Number of nodes/blocks: " + nodes.size());
             Iterator<Node<Block>> nodesIter = nodes.iterator();
             Block longestVerifiedBlock = null;
+            log.info("Nodes ordered by decreasing length: " + nodes);
+            ChainVerificationResult chainVerificationResult = null;
             while(nodesIter.hasNext()){
                 Block block = nodesIter.next().getData();
-                if (BlocksVerifier.verify(block, blocksProvider)){
+                chainVerificationResult = BlocksVerifier.verify(block, blocksProvider);
+                if (chainVerificationResult != null){
                     longestVerifiedBlock = block;
                     break;    
                 }                
             }
-            if (longestVerifiedBlock == null)
-                continue;
-            Collection<Transaction> transactions = null;
-            //get new verified transactions  
-            submitNewBlock(transactions, ByteHashcodeProvider.provide(longestVerifiedBlock));
+            log.info("Longest verified block: " + longestVerifiedBlock);
             
             try{
                 Thread.sleep(1000);
@@ -54,11 +58,18 @@ public class FullNode{
                 log.error(ex);
                 throw new RuntimeException(ex);
             }
-        }    
+            if (longestVerifiedBlock == null)
+                continue;
+            List<Transaction> newTransactions = newTxProvider.provideThoseWithHighestFee(
+                    chainVerificationResult);
+            submitNewBlock(newTransactions, ByteHashcodeProvider.provide(longestVerifiedBlock));
+        }
+        log.info("Stopping full node");
     }
     
     void submitNewBlock(Collection<Transaction> transactions, byte[] previousBlockHashcode){
         Block block = new Block(transactions, previousBlockHashcode, minerAddress, 0L);
+        log.info("New block to be submitted: " + block);
         block = NounceFinder.find(block);    
         blocksInTime.add(block);
     }

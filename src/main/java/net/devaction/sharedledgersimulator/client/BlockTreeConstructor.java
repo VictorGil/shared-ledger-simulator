@@ -21,18 +21,18 @@ import net.devaction.sharedledgersimulator.tree.Node;
 public class BlockTreeConstructor{
     private static final Log log = LogFactory.getLog(BlockTreeConstructor.class);
     
-    private BlocksInTime blocksInTime; 
+    private final BlocksInTime blocksInTime; 
     //private Map<List<Byte>, BlockNode> hashcodeMap;
-    private Map<List<Byte>, BlockNode> hashcodeMap = new HashMap<List<Byte>, BlockNode>();;
+    private Map<List<Byte>, BlockNode> hashcodeMap = new HashMap<List<Byte>, BlockNode>();
     
     public BlockTreeConstructor(){
         blocksInTime = BlocksInTime.getInstance();    
     }
     
     public BlockNode constructTree(){
-
         BlockNode node = null;
         Iterator<Block> blocksIterator = blocksInTime.iterator();
+        BlockNode firstNode = null;
         while (blocksIterator.hasNext()){
             Block block = blocksIterator.next();            
             List<Byte> key = generateKey(block);
@@ -40,6 +40,9 @@ public class BlockTreeConstructor{
             if (node == null){
                 node = new BlockNode(block);
                 hashcodeMap.put(key, node);
+            }
+            if (firstNode == null){
+                firstNode = node;
             }
             if (block.getPreviousBlockHashcode() != null) {//otherwise it is the Genesis block
                 List<Byte> previousBlockKey = generateKey(block.getPreviousBlockHashcode());
@@ -51,7 +54,8 @@ public class BlockTreeConstructor{
         }
         //we return the root node of the tree which contains the Genesis block
         //we assume that the first block in time is the Genesis block
-        return node;
+        //return node;
+        return firstNode;
     }
     
     //I think that this is not needed
@@ -77,7 +81,10 @@ public class BlockTreeConstructor{
         }
         return key;
     }
-
+    
+    public int size(){
+        return hashcodeMap.size();
+    }
     public Block getBlock(List<Byte> byteHashcode){
         return hashcodeMap.get(byteHashcode).getData();
     }    

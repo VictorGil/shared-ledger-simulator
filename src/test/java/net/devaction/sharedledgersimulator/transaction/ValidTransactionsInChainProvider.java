@@ -42,7 +42,7 @@ private static final Log log = LogFactory.getLog(ValidTransactionsInBlockProvide
         return transactionsInBlockList;
     }
     
-    static TransactionsInBlock constructTransactionsInGenesisBlock(KeyPair genesisKeyPair){
+    public static TransactionsInBlock constructTransactionsInGenesisBlock(KeyPair genesisKeyPair){
 
         AddressAndAmount outputReward1 = new AddressAndAmount(genesisKeyPair.getAddress(), REWARD);
         List<AddressAndAmount> addressesAndAmountsGenesis = new ArrayList<AddressAndAmount>(); 

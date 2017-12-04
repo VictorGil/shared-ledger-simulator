@@ -1,9 +1,11 @@
 package net.devaction.sharedledgersimulator.network;
 
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import net.devaction.sharedledgersimulator.transaction.Transaction;
-import net.devaction.util.IteratorWithoutRemove;
 
 /**
  * @author Víctor Gil
@@ -13,7 +15,7 @@ public class TransactionsInTime{
     
     //It is only possible to add Transaction objects to this set
     //It is not allowed to remove any Transaction object from it
-    private final ConcurrentSkipListSet<Transaction> transactions = new ConcurrentSkipListSet<Transaction>();
+    private final List<Transaction> transactions = Collections.synchronizedList(new ArrayList<Transaction>());
     
     public static TransactionsInTime getInstance(){
         if (INSTANCE == null)
@@ -28,10 +30,18 @@ public class TransactionsInTime{
         transactions.add(transaction);
     }
     
-    public IteratorWithoutRemove<Transaction> iterator(){
-        return new IteratorWithoutRemove<Transaction>(transactions.iterator());
+    public Iterator<Transaction> iterator(){
+        return new TransactionsInTimeIterator(this);
     }
-
+    
+    Transaction get(int i){
+        return transactions.get(i);
+    }
+    
+    int size(){
+        return transactions.size();
+    }
+    
     @Override
     public String toString() {
         return "Number of transactions: " + transactions.size() + 
