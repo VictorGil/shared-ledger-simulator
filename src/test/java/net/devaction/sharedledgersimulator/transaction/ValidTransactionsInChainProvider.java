@@ -15,7 +15,7 @@ import net.devaction.util.serialization.Serializer;
  * @author Víctor Gil
  */
 public class ValidTransactionsInChainProvider{
-private static final Log log = LogFactory.getLog(ValidTransactionsInBlockProvider.class);
+private static final Log log = LogFactory.getLog(ValidTransactionsInChainProvider.class);
     
     private static final long REWARD = Long.parseLong(PropertiesProvider.get("reward.per.block"));
     private static final RsaKeyPairProvider keyPairProvider = RsaKeyPairProvider.getInstance();
