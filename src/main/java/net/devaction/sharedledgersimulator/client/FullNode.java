@@ -37,10 +37,10 @@ public class FullNode implements Runnable{
         log.info("Starting full node");
         while(!wasStopRequested){
             NodesOrderedByLength<Block> nodes = blocksProvider.provideOrderedbyLength();
-            log.info("Number of nodes/blocks: " + nodes.size());
+            log.info("Number of nodes/blocks in tree (all chains): " + nodes.size());
             Iterator<Node<Block>> nodesIter = nodes.iterator();
             Block longestVerifiedBlock = null;
-            log.info("Nodes ordered by decreasing length: " + nodes);
+            log.info("Nodes ordered by decreasing length (distance to genesis block): " + nodes);
             ChainVerificationResult chainVerificationResult = null;
             while(nodesIter.hasNext()){
                 Block block = nodesIter.next().getData();
@@ -50,7 +50,7 @@ public class FullNode implements Runnable{
                     break;    
                 }                
             }
-            log.info("Longest verified block: " + longestVerifiedBlock);
+            log.info("Tail verified block from longest chain: " + longestVerifiedBlock);
             
             try{
                 Thread.sleep(1000);
@@ -60,14 +60,16 @@ public class FullNode implements Runnable{
             }
             if (longestVerifiedBlock == null)
                 continue;
-            List<Transaction> newTransactions = newTxProvider.provideThoseWithHighestFee(
+            NewTransactionsAndTotalFee newTransactionsAndTotalFee = newTxProvider.provideThoseWithHighestFee(
                     chainVerificationResult);
-            submitNewBlock(newTransactions, ByteHashcodeProvider.provide(longestVerifiedBlock));
+            submitNewBlock(newTransactionsAndTotalFee.getTransactions(), 
+                    ByteHashcodeProvider.provide(longestVerifiedBlock), 
+                    newTransactionsAndTotalFee.getTotalFee());
         }
         log.info("Stopping full node");
     }
     
-    void submitNewBlock(Collection<Transaction> transactions, byte[] previousBlockHashcode){
+    void submitNewBlock(Collection<Transaction> transactions, byte[] previousBlockHashcode, long totalFee){
         Block block = new Block(transactions, previousBlockHashcode, minerAddress, 0L);
         log.info("New block to be submitted: " + block);
         block = NounceFinder.find(block);    

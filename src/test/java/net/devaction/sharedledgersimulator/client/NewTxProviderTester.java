@@ -88,7 +88,7 @@ public class NewTxProviderTester{
         SortedSet<TransactionWithFee> txWithFeeSet = newTxProvider.provideOrderedByFee(chainVerificationResult);
         log.info("New transactions with fee ordered:\n" + txWithFeeSet);
         
-        List<Transaction> transactions = newTxProvider.provideThoseWithHighestFee(chainVerificationResult);
+        NewTransactionsAndTotalFee transactions = newTxProvider.provideThoseWithHighestFee(chainVerificationResult);
         log.info("New transactions to be put in a new block:\n" + transactions);
     }
 }

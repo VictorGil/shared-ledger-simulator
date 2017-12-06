@@ -1,6 +1,5 @@
 package net.devaction.sharedledgersimulator.client;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -23,16 +22,16 @@ public class NewTxProvider{
         transactionsInTime = TransactionsInTime.getInstance();
     }
     
-    public List<Transaction> provideThoseWithHighestFee(ChainVerificationResult 
+    public NewTransactionsAndTotalFee provideThoseWithHighestFee(ChainVerificationResult 
             chainVerificationResult){
         
         SortedSet<TransactionWithFee> txWithFeeSet = provideOrderedByFee(chainVerificationResult);
         Iterator<TransactionWithFee> iter = txWithFeeSet.iterator();
-        List<Transaction> txList = new ArrayList<Transaction>(TX_PER_BLOCK);
-        while(iter.hasNext() && txList.size() < TX_PER_BLOCK){
-            txList.add(iter.next().getTransaction());
+        NewTransactionsAndTotalFee txsAndFee = new NewTransactionsAndTotalFee();
+        while(iter.hasNext() && txsAndFee.size() < TX_PER_BLOCK){
+            txsAndFee.add(iter.next());
         }
-        return txList;
+        return txsAndFee;
     }
     
     public SortedSet<TransactionWithFee> provideOrderedByFee(ChainVerificationResult 
@@ -63,5 +62,4 @@ public class NewTxProvider{
         }
         return false;        
     }
-
 }
