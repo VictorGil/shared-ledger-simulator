@@ -20,11 +20,16 @@ import net.devaction.util.serialization.Serializer;
 public class RsaThinClient implements ThinClient{
     private static final Log log = LogFactory.getLog(RsaThinClient.class);
     
-    private KeyPair keyPair;
-    private TransactionsInTime transactionsInTime;
+    private final KeyPair keyPair;
+    private final TransactionsInTime transactionsInTime;
     
     public RsaThinClient(){
         keyPair = RsaKeyPairProvider.getInstance().provideRandomKeyPair();
+        transactionsInTime = TransactionsInTime.getInstance();
+    }
+    
+    public RsaThinClient(KeyPair keyPair){
+        this.keyPair = keyPair; 
         transactionsInTime = TransactionsInTime.getInstance();
     }
     
