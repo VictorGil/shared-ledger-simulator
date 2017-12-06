@@ -34,7 +34,7 @@ public class NewTxProvider{
         return txsAndFee;
     }
     
-    public SortedSet<TransactionWithFee> provideOrderedByFee(ChainVerificationResult 
+    SortedSet<TransactionWithFee> provideOrderedByFee(ChainVerificationResult 
             chainVerificationResult){
         final Iterator<Transaction> txIterator = transactionsInTime.iterator();
         List<TransactionsInBlock> txInChain = chainVerificationResult.getTransactionsInChain();
