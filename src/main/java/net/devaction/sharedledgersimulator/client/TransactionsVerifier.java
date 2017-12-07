@@ -41,7 +41,11 @@ public class TransactionsVerifier{
                     if (rewardAndFeeOutputs.add(signedTransaction, 
                             transactionsInBlock.getMinerAddress(), REWARD)){
                         List<Byte> minerAddressKey = BlockTreeConstructor.generateKey(transactionsInBlock.getMinerAddress());
-                        balances.put(minerAddressKey, REWARD + rewardAndFeeOutputs.getFee());
+                        
+                        Long minerTargetBalance = balances.get(minerAddressKey);
+                        if (minerTargetBalance == null)
+                            minerTargetBalance = 0L; 
+                        balances.put(minerAddressKey,minerTargetBalance + REWARD + rewardAndFeeOutputs.getFee());
                         continue;
                    } else{
                        //verification failed
@@ -74,7 +78,7 @@ public class TransactionsVerifier{
                 log.debug("\nTotal amount of the regular transaction: " + totalAmount);
                 
                 if (balance < totalAmount){
-                    log.warn("The calculated fee does not much the fee in the transaction, "
+                    log.warn("The calculated fee does not match the fee in the transaction, "
                             + "balance: " + balance + ", total amount: " + totalAmount);
                     return null;
                 }
