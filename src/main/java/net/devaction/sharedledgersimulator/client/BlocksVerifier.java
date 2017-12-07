@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import net.devaction.sharedledgersimulator.block.Block;
 import net.devaction.sharedledgersimulator.transaction.TransactionsInBlock;
 
@@ -11,6 +14,7 @@ import net.devaction.sharedledgersimulator.transaction.TransactionsInBlock;
  * @author Víctor Gil
  */
 public class BlocksVerifier{
+    private static final Log log = LogFactory.getLog(ChainVerificationResult.class);
     
     public static ChainVerificationResult verify(Block block, BlocksProvider blockProvider){
         List<TransactionsInBlock> transactionList = new ArrayList<TransactionsInBlock>();
@@ -32,6 +36,7 @@ public class BlocksVerifier{
         if (balances == null)
             //verification failed
             return null;
+        log.debug("Balances:\n" + balances);
         return new ChainVerificationResult(transactionList, balances);
     }
     
