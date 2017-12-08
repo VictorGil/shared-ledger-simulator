@@ -51,6 +51,7 @@ public class FullNode implements Runnable{
                 }                
             }
             log.info("Tail verified block from longest chain: " + longestVerifiedBlock);
+            log.info("Number of blocks in the chain: " + chainVerificationResult.getTransactionsInChain().size());
             
             try{
                 Thread.sleep(1000);
@@ -70,7 +71,7 @@ public class FullNode implements Runnable{
     }
     
     void submitNewBlock(Collection<Transaction> transactions, byte[] previousBlockHashcode, long totalFee){
-        Block block = new Block(transactions, previousBlockHashcode, minerAddress, 0L);
+        Block block = new Block(transactions, previousBlockHashcode, minerAddress, totalFee);
         log.info("New block to be submitted: " + block);
         block = NounceFinder.find(block);    
         blocksInTime.add(block);
