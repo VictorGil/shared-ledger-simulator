@@ -47,6 +47,8 @@ public class NewTxProvider{
                 continue;
             Map<List<Byte>, Long> balances = chainVerificationResult.getBalances();
             TransactionWithFee txWithFee = TransactionWithFeeConstructor.contruct(transaction, balances);
+            if (txWithFee == null)
+                continue;
             txWithFeeSet.add(txWithFee);
         }        
         return txWithFeeSet;
