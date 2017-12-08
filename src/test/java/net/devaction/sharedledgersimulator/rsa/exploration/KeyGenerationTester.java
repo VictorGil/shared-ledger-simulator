@@ -42,8 +42,8 @@ public class KeyGenerationTester{
         
         String publicKeyBase64Str = encoder.encodeToString(publicKey.getEncoded());
         log.info("Public key in Base64 format:\n" + publicKeyBase64Str);//it creates 392 chars and again 392 chars for 2048 bits
-                                                                        //it creates 162 bytes for 1024 bits, an Etherum address is 20 bytes (40 hexadecimal digits/characters long)
-                                                                        //324 hexadecimal characters, and we use the last 40 as the Etherum address
+                                                                        //it creates 162 bytes for 1024 bits, an Ethereum address is 20 bytes (40 hexadecimal digits/characters long)
+                                                                        //324 hexadecimal characters, and we use the last 40 as the Ethereum address
         byte[] publicKeyBytes = decoder.decode(publicKeyBase64Str);
         log.info("The public Key is " + publicKeyBytes.length + " bytes long");
         String publicKeyHex = String.format("%040x", new BigInteger(1, publicKeyBytes));
