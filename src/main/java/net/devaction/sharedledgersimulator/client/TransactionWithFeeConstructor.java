@@ -42,6 +42,7 @@ public class TransactionWithFeeConstructor{
             return null;
         }
         long calculatedFee = balance - totalAmount;
+        log.debug("The calculated fee is: " + calculatedFee);
         return new TransactionWithFee(transaction, calculatedFee);
     }
 }
