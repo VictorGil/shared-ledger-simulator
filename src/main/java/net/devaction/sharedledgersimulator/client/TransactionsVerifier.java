@@ -1,5 +1,6 @@
 package net.devaction.sharedledgersimulator.client;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -26,9 +27,10 @@ public class TransactionsVerifier{
 
     public static Map<List<Byte>, Long> verify(List<TransactionsInBlock> transactionsInChain){
         Map<List<Byte>, Long> balances = new HashMap<List<Byte>, Long>();
-        
-        //for (int i = transactionsInChain.size() - 1; i >= 0; i++){
-        for (int i = 0; i < transactionsInChain.size(); i++){
+        log.info("Transactions in chain size is " + transactionsInChain.size() +
+                ":\n\n" + transactionsInChain + "\n\n");
+        for (int i = transactionsInChain.size() - 1; i >= 0; i--){
+        //for (int i = 0; i < transactionsInChain.size(); i++){
             RewardAndFeeOutputs rewardAndFeeOutputs = new RewardAndFeeOutputs();
             TransactionsInBlock transactionsInBlock = transactionsInChain.get(i);
             Iterator<Transaction> transactionIter = transactionsInBlock.iterator();
@@ -78,7 +80,7 @@ public class TransactionsVerifier{
                 log.debug("\nTotal amount of the regular transaction: " + totalAmount);
                 
                 if (balance < totalAmount){
-                    log.warn("The calculated fee does not match the fee in the transaction, "
+                    log.warn("The total amount in the transaction is bigger than the available balance, "
                             + "balance: " + balance + ", total amount: " + totalAmount);
                     return null;
                 }
@@ -90,10 +92,14 @@ public class TransactionsVerifier{
                     addressAndAmount = iterAandA2.next();
                     long amount = addressAndAmount.getAmount();
                     List<Byte> targetAddressKey = BlockTreeConstructor.generateKey(addressAndAmount.getAddress());
-                    Long targetBalance = balances.get(targetAddressKey);
+                    Long targetBalance = balances.get(targetAddressKey);                    
                     if (targetBalance == null)
-                        targetBalance = 0L;  
-                    balances.put(targetAddressKey, targetBalance + amount);
+                        targetBalance = 0L; 
+                    log.debug("Target balance: " + targetBalance);
+                    long newBalance = targetBalance + amount;
+                    log.debug("New balance for " + Arrays.toString(addressAndAmount.getAddress()) + " is\n" + newBalance);
+                    balances.put(targetAddressKey, targetBalance + newBalance);
+                    log.info("Balances:\n" + balances);
                 }
             }
             if (calculatedFee != rewardAndFeeOutputs.getFee()){
